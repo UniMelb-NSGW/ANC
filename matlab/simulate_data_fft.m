@@ -26,12 +26,29 @@ for n=1:NumRef
 	mag=(rand(1,length(t))-0.5)/10+ampr; % magnitude noise
 	S_delayed=delay_sig(S,dt,tdel(n));
 	r=mag.*S_delayed(1:length(t))+randn(1,length(t))*Q;
-	R(:,n)=r.';
+	R(:,n)=r.;
 end
-% r=simulate_references(gamma_a,t,NumRef,f0,ampr/ampr0*mag,Q);
+
 p=point_phase(fq,t(1:N),T);
 q=h*sin(2*pi*p);% h can be random
 if NumRef==0
 	r0=0;
 end
 s = r0+q+randn(1,length(t))*H;
+
+
+
+
+
+
+
+def point_phase(f,t,T)
+
+	df=diff(f)/T;
+	df(end+1)=0;
+	p=[];
+	pn=0;
+	for n=1:length(f)
+		p=[p pn+f(n)*t+df(n)*t.^2/2];
+		pn=pn+f(n)*T+df(n)*T.^2/2;
+	end
