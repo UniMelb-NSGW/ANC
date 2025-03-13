@@ -32,7 +32,11 @@ def arls_n(primary, reference, order, lambd):
     P : ndarray
         Covariance matrix P = <ww^T> - used in ARLS algorithm
     """
-    N = reference.shape[1] if len(reference.shape) > 1 else 1
+    # Ensure reference is always a 2D array
+    if len(reference.shape) == 1:
+        reference = reference.reshape(-1, 1)
+    
+    N = reference.shape[1]
     n = min(len(primary), len(reference))
     
     # Initialize tap-input vector (Eq. 11) as buffer for reference samples
@@ -54,10 +58,7 @@ def arls_n(primary, reference, order, lambd):
     # Main ARLS loop (Step 2 in Sec. III.B)
     for k in range(n):
         # Update tap-input vector u_k with new reference sample
-        if len(reference.shape) > 1:
-            delayed[0, :] = reference[k, :]
-        else:
-            delayed[0, 0] = reference[k]
+        delayed[0, :] = reference[k, :]
             
         # Estimate clutter ĉ_k (Eq. 10 and Step 2a in Sec. III.B)
         fit[k] = np.trace(np.dot(delayed.T, adap))

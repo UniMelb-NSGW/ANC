@@ -19,7 +19,10 @@ def test_arls_n_basic_functionality():
     # Basic checks
     assert cancelled.shape == (n_samples,)
     assert fit.shape == (n_samples,)
-    assert P.shape == (order, order)
+    # P should be (order*N, order*N) where N=1 for single channel
+    assert P.shape == (order*1, order*1)
+    # Check adap shape is (order, N)
+    assert adap.shape == (order, 1)
     
     # After convergence, the cancelled signal should be closer to the original signal
     # than the noisy signal was (in terms of mean squared error)
@@ -74,7 +77,7 @@ def test_arls_n_parameter_validation():
     for order in [1, 5, 10]:
         cancelled, adap, fit, P = arls_n(primary, reference, order, 0.99)
         assert adap.shape == (order, 1)
-        assert P.shape == (order, order)
+        assert P.shape == (order*1, order*1)  # P is (order*N, order*N) where N=1
     
     # Test with different lambda values
     for lambd in [0.9, 0.95, 0.99, 1.0]:

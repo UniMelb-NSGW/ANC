@@ -6,3 +6,5 @@ Note of  any differences between matlab and Python
 
 
 * Python drops the least mean squares (LMS) algorithm. `alms_n()`
+
+* In Viterbi, I don't think Python has a `colfilt`, so the loops are mor explicit. WE should consider how to handle this better.

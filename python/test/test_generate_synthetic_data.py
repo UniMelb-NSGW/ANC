@@ -3,7 +3,7 @@ Unit tests for signal generation utilities.
 """
 import pytest
 import numpy as np
-from ANC.signal_generation import simulate_data
+from ANC.generate_synthetic_data import simulate_data
 
 
 def test_simulate_data_shapes():

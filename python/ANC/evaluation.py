@@ -3,7 +3,7 @@ Evaluation utilities for adaptive filtering.
 """
 import numpy as np
 from adaptive_filters import arls_n
-from detection import viterbi_for_ANC
+from python.ANC.hmm_viterbi import viterbi_for_ANC
 
 
 def anc_filter(h, f0, ampr0, ampr, H, Q, gamma_a):
@@ -34,7 +34,7 @@ def anc_filter(h, f0, ampr0, ampr, H, Q, gamma_a):
     score_RLS : float
         Score with RLS filtering
     """
-    from signal_generation import simulate_data
+    from python.ANC.generate_synthetic_data import simulate_data
     
     W = 1000  # Sampling frequency
     N = 2**14

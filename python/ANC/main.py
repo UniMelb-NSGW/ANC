@@ -4,8 +4,8 @@ Main script for running adaptive filtering experiments.
 import numpy as np
 import matplotlib.pyplot as plt
 from adaptive_filters import arls_n
-from signal_generation import simulate_data
-from detection import viterbi_for_ANC
+from python.ANC.generate_synthetic_data import simulate_data
+from python.ANC.hmm_viterbi import viterbi_for_ANC
 from evaluation import generate_roc_curve,anc_filter
 
 

@@ -1,5 +1,5 @@
 """
-Detection algorithms for adaptive filtering.
+Hidden Markov Model Viterbi algorithms for adaptive filtering.
 """
 import numpy as np
 
@@ -13,32 +13,36 @@ def viterbi_colFLT(M, obslik):
     M : int
         Window size for column filtering
     obslik : ndarray
-        Observation likelihood matrix
+        Observation likelihood matrix (assumed to be log-likelihoods)
         
     Returns:
     --------
     path : ndarray
         Most likely state sequence
     delta : ndarray
-        Probability of the best sequence
+        Log probability of the best sequence
     score : float
         Score of the best path
+    psi : ndarray
+        Best predecessor state at each time and state
     """
     # Ensure M is odd
     if M % 2 == 0:
         M += 1
     
+ 
     Q, T = obslik.shape
     
     delta = np.zeros((Q, T))
     psi = np.zeros((Q, T), dtype=int)
     
-    # Initialize
+    # Initialize first time step with observation log-likelihoods
     t = 0
-    delta[:, t] = obslik[:, t]
-    
-    # Correction term
-    cor = np.arange(Q) - np.ceil((M-1)/2)
+    #delta[:, t] = obslik[:, t]
+
+    # Initialize with uniform prior
+    delta[:, 0] = np.log(1.0 / Q) + obslik[:, 0]
+
     
     # Forward pass
     for t in range(1, T):
@@ -46,13 +50,22 @@ def viterbi_colFLT(M, obslik):
             # Define window boundaries
             start = max(0, i - (M-1)//2)
             end = min(Q, i + (M-1)//2 + 1)
+            window_size = end - start
             
-            # Find maximum within window
-            window_vals = delta[start:end, t-1]
-            j_max = np.argmax(window_vals)
+            # Transition log-probability (uniform within window)
+            trans_logprob = np.log(1.0 / window_size)
             
-            # Update delta and psi
-            delta[i, t] = window_vals[j_max] + obslik[i, t]
+            # Calculate log-probabilities for all possible previous states in window
+            log_probs = np.zeros(window_size)
+            for j in range(window_size):
+                prev_state = start + j
+                log_probs[j] = delta[prev_state, t-1] + trans_logprob
+            
+            # Find maximum log-probability
+            j_max = np.argmax(log_probs)
+            
+            # Update delta and psi (working in log space)
+            delta[i, t] = log_probs[j_max] + obslik[i, t]
             psi[i, t] = start + j_max
     
     # Find best ending state
@@ -94,6 +107,8 @@ def viterbi_for_ANC(gamma, Y1, N, Nblocks, T, W):
         Score of the best path
     fhat : ndarray
         Estimated frequency path
+    y0 : ndarray
+        Filtered spectrogram around 60 Hz
     """
     # Create frequency axis
     w = np.linspace(-W/2, W/2, 2*N)
@@ -109,13 +124,17 @@ def viterbi_for_ANC(gamma, Y1, N, Nblocks, T, W):
     w0 = w[n]
     y0 = y[n, :]
     
+    # Convert spectrogram to log-likelihoods
+    # Higher amplitude means higher likelihood
+    obslik = np.log(y0 + 1e-10)  # Add small constant to avoid log(0)
+    
     # Calculate window size for Viterbi
     M = max(1, int(np.ceil(2 * np.sqrt(T) * gamma / dw)))
     
     # Compute Viterbi path
-    path, delta,_,_ = viterbi_colFLT(2*M+1, y0) # path, delta, score, psi
+    path, delta, score, psi = viterbi_colFLT(2*M+1, obslik)
     
-    # Calculate score
+    # Calculate score (difference between max and average log-likelihood)
     score = np.max(delta[:, -1]) - np.mean(delta[:, -1])
     
     # Map path to frequencies
