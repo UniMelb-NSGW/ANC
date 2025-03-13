@@ -16,8 +16,8 @@ def test_simulate_data_shapes():
     W = 1000.0  # Sampling frequency
     N = 1000  # Number of samples per block
     Q = 0.05  # Noise level of reference signal
-    ampr0 = 1.0  # Amplitude of reference signal
-    ampr = 0.8  # Amplitude factor for reference
+    ampr0 = 1.0    # Amplitude of reference signal
+    ampr = 0.8     # Amplitude factor for reference
     gamma_a = 0.1  # Phase fluctuation parameter
     
     # Call the function

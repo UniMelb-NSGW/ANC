@@ -32,7 +32,7 @@ def delay_sig(s0, dt, d):
     fax = W * np.arange(-nfft/2, nfft/2) / nfft
     
     # Frequency domain function for delay
-    shft = np.exp(1j * d * 2 * np.pi * fax)
+    shft = np.exp(-1j * d * 2 * np.pi * fax)
     shft = np.fft.ifftshift(shft)
     
     # Apply delay in frequency domain
@@ -74,6 +74,6 @@ def point_phase(f, t, T):
     
     for n in range(len(f)):
         p = np.append(p, pn + f[n] * t + df[n] * t**2 / 2)
-        pn = pn + f[n] * T + df[n] * T**2 / 2
+        pn = pn + f[n] * T + df[n] * T**2 / 2 #quadratic phase term
     
     return p 
