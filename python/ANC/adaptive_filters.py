@@ -1,118 +1,83 @@
 """
-Adaptive filtering algorithms for noise cancellation.
-Contains Python implementations of ALMS and ARLS algorithms.
+Adaptive Recursive Least Squares (ARLS) implementation for noise cancellation.
+Based on the algorithm described in "Adaptive cancellation of mains power interference
+in continuous gravitational wave searches with a hidden Markov model" (Kimpson et al., 2024)
 """
 import numpy as np
 
 
-def alms_n(primary, reference, order=2):
-    """
-    Adaptive LMS algorithm for noise cancellation.
-    
-    Parameters:
-    -----------
-    primary : ndarray
-        Primary signal (signal + line noise)
-    reference : ndarray
-        Reference signal (line noise only)
-    order : int, optional
-        Filter order, default is 2
-        
-    Returns:
-    --------
-    cancelled : ndarray
-        Signal with line noise cancelled
-    adap : ndarray
-        Adaptive filter coefficients
-    fit : ndarray
-        Estimated line noise
-    """
-    mu = 1e-4
-    N = reference.shape[1] if len(reference.shape) > 1 else 1
-    n = min(len(primary), len(reference))
-    
-    delayed = np.zeros((N, order))
-    adap = np.zeros((N, order))
-    cancelled = np.zeros(n)
-    fit = np.zeros(n)
-    
-    for k in range(n):
-        if len(reference.shape) > 1:
-            delayed[:, 0] = reference[k, :]
-        else:
-            delayed[0, 0] = reference[k]
-            
-        fit[k] = np.trace(np.dot(delayed, adap.T))
-        cancelled[k] = primary[k] - fit[k]
-        adap = adap + 2 * mu * cancelled[k] * delayed
-        
-        # Shift the delayed samples
-        delayed[:, 1:order] = delayed[:, 0:order-1]
-    
-    return cancelled, adap, fit
-
-
 def arls_n(primary, reference, order, lambd):
     """
-    Adaptive RLS algorithm for noise cancellation.
+    Adaptive RLS algorithm for noise cancellation as described in Section III of the paper.
     
     Parameters:
     -----------
     primary : ndarray
-        Primary signal (signal + line noise)
+        Primary signal x(t) (signal + line noise) - Eq. (1)
     reference : ndarray
-        Reference signal (line noise only)
+        Reference signal r(t) (line noise only) - Eq. (2)
     order : int
-        Filter order
+        Filter order M - controls complexity of the model (Sec. III.B)
     lambd : float
-        Forgetting factor (0 < lambd <= 1)
+        Forgetting factor λ (0 < lambd <= 1) - gives exponentially less weight to older samples
         
     Returns:
     --------
     cancelled : ndarray
-        Signal with line noise cancelled
+        Signal with line noise cancelled e(t) = x(t) - ĉ(t) - Eq. (9)
     adap : ndarray
-        Adaptive filter coefficients
+        Adaptive filter coefficients w - Eq. (12)
     fit : ndarray
-        Estimated line noise
+        Estimated line noise ĉ(t) - Eq. (10)
     P : ndarray
-        Correlation matrix
+        Covariance matrix P = <ww^T> - used in ARLS algorithm
     """
     N = reference.shape[1] if len(reference.shape) > 1 else 1
     n = min(len(primary), len(reference))
     
+    # Initialize tap-input vector (Eq. 11) as buffer for reference samples
     delayed = np.zeros((order, N))
+    
+    # Initialize tap weights w = 0 (Step 1 in Sec. III.B)
     adap = np.zeros((order, N))
+    
+    # Arrays to store estimated noise and cancelled signal
     fit = np.zeros(n)
     cancelled = np.zeros(n)
     
-    # Initialize correlation matrix
+    # Initialize covariance matrix P = δ^-1*I (Step 1 in Sec. III.B)
+    # δ is the regularization parameter, set to 100 as mentioned in Sec. III.B
     Delta = 1e2
     I = np.eye(order * N)
     P = I * Delta
     
+    # Main ARLS loop (Step 2 in Sec. III.B)
     for k in range(n):
+        # Update tap-input vector u_k with new reference sample
         if len(reference.shape) > 1:
             delayed[0, :] = reference[k, :]
         else:
             delayed[0, 0] = reference[k]
             
+        # Estimate clutter ĉ_k (Eq. 10 and Step 2a in Sec. III.B)
         fit[k] = np.trace(np.dot(delayed.T, adap))
+        
+        # Calculate residual e_k (Eq. 9 and Step 2b in Sec. III.B)
         cancelled[k] = primary[k] - fit[k]
         
         # Flatten delayed for matrix operations
         delayed_flat = delayed.flatten()
         
-        # Calculate Kalman gain
+        # Calculate gain vector g_k (Eq. 14 and Step 2c in Sec. III.B)
         K = np.dot(P, delayed_flat) / (lambd + np.dot(np.dot(delayed_flat.T, P), delayed_flat))
         
-        # Update correlation matrix
+        # Update covariance matrix P_k (Eq. 16 and Step 2e in Sec. III.B)
         P = np.dot((I - np.outer(K, delayed_flat.T)), P) / lambd
         
-        # Update filter coefficients
+        # Update tap weights w_k (Eq. 15 and Step 2d in Sec. III.B)
         adap = adap + cancelled[k] * np.reshape(K, (order, N))
         
-        # Shift the delayed samples
+        # Shift the delayed samples for next iteration
         delayed[1:order, :] = delayed[0:order-1, :]
     
-    return cancelled, adap, fit, P 
+    return cancelled, adap, fit, P
