@@ -7,7 +7,7 @@ import numpy as np
 from tqdm import tqdm
 
 
-def arls_n(primary, reference, order, lambd):
+def arls_n(primary, reference, order, lambd,Delta):
     """
     Adaptive RLS algorithm for noise cancellation as described in Section III of the paper.
     
@@ -21,6 +21,8 @@ def arls_n(primary, reference, order, lambd):
         Filter order M - controls complexity of the model (Sec. III.B)
     lambd : float
         Forgetting factor λ (0 < lambd <= 1) - gives exponentially less weight to older samples
+    Delta : float
+        Regularization parameter δ - used in initialization of covariance matrix P
         
     Returns:
     --------
@@ -52,7 +54,6 @@ def arls_n(primary, reference, order, lambd):
     
     # Initialize covariance matrix P = δ^-1*I (Step 1 in Sec. III.B)
     # δ is the regularization parameter, set to 100 as mentioned in Sec. III.B
-    Delta = 1e-10
     I = np.eye(order * N)
     P = I * Delta
     
