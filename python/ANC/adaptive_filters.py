@@ -4,6 +4,7 @@ Based on the algorithm described in "Adaptive cancellation of mains power interf
 in continuous gravitational wave searches with a hidden Markov model" (Kimpson et al., 2024)
 """
 import numpy as np
+from tqdm import tqdm
 
 
 def arls_n(primary, reference, order, lambd):
@@ -51,12 +52,12 @@ def arls_n(primary, reference, order, lambd):
     
     # Initialize covariance matrix P = δ^-1*I (Step 1 in Sec. III.B)
     # δ is the regularization parameter, set to 100 as mentioned in Sec. III.B
-    Delta = 1e2
+    Delta = 1e-10
     I = np.eye(order * N)
     P = I * Delta
     
     # Main ARLS loop (Step 2 in Sec. III.B)
-    for k in range(n):
+    for k in tqdm(range(n), desc="Processing samples"):
         # Update tap-input vector u_k with new reference sample
         delayed[0, :] = reference[k, :]
             
