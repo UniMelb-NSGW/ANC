@@ -5,7 +5,7 @@ import pytest
 import numpy as np
 import sys
 import os
-from ANC.signal_processing import delay_sig, point_phase
+from ANC.utils import delay_sig, point_phase
 
 
 
