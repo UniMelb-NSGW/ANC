@@ -7,7 +7,7 @@ import numpy as np
 from ANC.utils import delay_sig, point_phase
 
 
-def simulate_data(f_ac, fq, h0, sigma_n, W, N, sigma_r, A_ac, A_r, gamma_a, Δfac=1, sigma_theta=0.01,NumRef=1):
+def simulate_data(f_ac, fq, h0, sigma_n, W, N, sigma_r, A_c, A_r, gamma_a, Δfac=1, sigma_theta=0.01,NumRef=1):
     """
     Generate simulated data for testing adaptive filters.
     
@@ -74,7 +74,7 @@ def simulate_data(f_ac, fq, h0, sigma_n, W, N, sigma_r, A_ac, A_r, gamma_a, Δfa
     P = 1/gamma_a
     n_θ = np.random.randn(len(t)) * sigma_theta
     Θ = 2*np.pi * Δfac*np.cos(2*np.pi*t/P) + n_θ
-    c = A_r * np.cos(2*np.pi*f_ac*t + Θ) 
+    c = A_c * np.cos(2*np.pi*f_ac*t + Θ) 
 
 
 
@@ -90,7 +90,7 @@ def simulate_data(f_ac, fq, h0, sigma_n, W, N, sigma_r, A_ac, A_r, gamma_a, Δfa
         tt = t  - (t_delay + tdelta[n])
         phase_delayed = 2*np.pi * Δfac*np.cos(2*np.pi*tt/P) + n_θ_delayed
         
-        r = A_r * np.cos(2*np.pi*f_ac*tt + phase_delayed) + np.random.randn(len(t)) * sigma_r  # Changed to cosine
+        r = A_r * np.cos(2*np.pi*f_ac*tt + phase_delayed) + np.random.randn(len(t)) * sigma_r 
         R[:, n] = r
     
     # Generate injected GW signal (Equation 18)
