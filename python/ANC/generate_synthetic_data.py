@@ -7,7 +7,7 @@ import numpy as np
 from ANC.utils import delay_sig, point_phase
 
 
-def simulate_data(f0, fq, h0, sigma_n, W, N, sigma_r, A_ac, A_r, gamma_a, D_fac=1, sigma_theta=0.01):
+def simulate_data(f_ac, fq, h0, sigma_n, W, N, sigma_r, A_ac, A_r, gamma_a, Δfac=1, sigma_theta=0.01,NumRef=1):
     """
     Generate simulated data for testing adaptive filters.
     
@@ -19,7 +19,7 @@ def simulate_data(f0, fq, h0, sigma_n, W, N, sigma_r, A_ac, A_r, gamma_a, D_fac=
     
     Parameters:
     -----------
-    f0 : float
+    f_ac : float
         Center frequency of reference (mains power, fac in paper, typically 60 Hz)
     fq : ndarray
         Array of frequencies for GW signal
@@ -39,7 +39,7 @@ def simulate_data(f0, fq, h0, sigma_n, W, N, sigma_r, A_ac, A_r, gamma_a, D_fac=
         Amplitude factor for reference
     gamma_a : float
         Phase fluctuation parameter (related to 1/P in the paper)
-    D_fac : float, optional
+    Δfac : float, optional
         Amplitude of phase modulation (Δfac in paper), default is 1
     sigma_theta : float, optional
         Standard deviation of phase noise (σΘ in paper), default is 0.01
@@ -61,61 +61,36 @@ def simulate_data(f0, fq, h0, sigma_n, W, N, sigma_r, A_ac, A_r, gamma_a, D_fac=
     """
     NT = len(fq)
     dt = 1/W
-    t0 = np.random.rand() * dt * 10  # Random time delay for reference
     t_delay = np.random.rand() * dt * 100  # Time delay between reference and clutter (τdelay in paper)
     
     t = np.arange(0, N*NT) / W
-    taug = np.arange(0, N*NT+101) / W  # Longer time vector for noise generation
+    
+    #taug = np.arange(0, N*NT+101) / W  # Longer time vector for noise generation
+    
     T = N/W  # Time within one block
     
-    # Generate magnitude with small random variations for reference
-    Ar_t = np.random.rand(len(t)) / 1000 + A_ac
-    
-    # Generate phase with modulation and noise (Equation 3)
-    # Θ(t) = 2πΔfac cos(2πt/P) + nΘ(t)
-    theta_t = 2*np.pi*D_fac*np.cos(2*np.pi*gamma_a*t)
-    n_theta = np.random.randn(len(taug)) * sigma_theta
-    
-    # Generate original reference signal (Equation 2)
-    # r(t) = Ar(t) cos[2πfact + Θ(t)] + nr(t)
-    r0 = Ar_t * np.cos(2*np.pi*f0*t + theta_t + n_theta[:len(t)]) + np.random.randn(len(t)) * sigma_r
-    
-    # Generate clutter signal (Equation 4)
-    # c(t) = Ac(tn - τdelay) cos[2πfac(tn - τdelay) + Θ(tn - τdelay)]
 
-    A_c = A_ac * 1.2  # Different amplitude for interference
-    
-    # Calculate delayed time points for clutter
-    t_c = np.maximum(t - t_delay, 0)  # Ensure non-negative time
-    
-    # Delayed phase components for clutter
-    theta_t_delayed = 2*np.pi*D_fac*np.cos(2*np.pi*gamma_a*t_c)
-    n_theta_delayed = delay_sig(n_theta, dt, t_delay)[:len(t)]
-    
-    # Generate clutter signal
-    A_c_t = np.random.rand(len(t)) / 1000 + A_c  # Small variations in clutter amplitude
-    c = A_c_t * np.cos(2*np.pi*f0*t_c + theta_t_delayed + n_theta_delayed)
-    
+    # Generate the clutter signal
+    P = 1/gamma_a
+    n_θ = np.random.randn(len(t)) * sigma_theta
+    Θ = 2*np.pi * Δfac*np.cos(2*np.pi*t/P) + n_θ
+    c = A_r * np.cos(2*np.pi*f_ac*t + Θ) 
+
+
+
     # Generate reference signals with phase shifts
-    NumRef = 1  # NOTE: Variable suggests multiple references, but only one is used currently
-                # The paper discusses benefits of multiple PEM channels
-    tdelta = np.array([0, 1/3/f0, 2/3/f0])  # NOTE: Array has 3 values but only the first is used
+    tdelta = np.array([0, 1/3/f_ac, 2/3/f_ac])  # 3 phase power
+
     R = np.zeros((len(t), NumRef))
-    
     for n in range(NumRef):
-        # Generate magnitude with small random variations
-        Ar_prime = np.random.rand(len(t)) / 100 + A_r
+        # Generate the reference, which occurs at some earlier time
+        n_θ_delayed = delay_sig(n_θ, dt, -(t_delay + tdelta[n]))
         
         # Time-shifted signal (related to τdelay in Equation 4)
-        tt = t + t0 + tdelta[n]
-        phase_delayed = 2*np.pi*f0*tt + 2*np.pi*D_fac*np.cos(2*np.pi*gamma_a*tt)
+        tt = t  - (t_delay + tdelta[n])
+        phase_delayed = 2*np.pi * Δfac*np.cos(2*np.pi*tt/P) + n_θ_delayed
         
-        # Delay the noise
-        n_theta_delayed = delay_sig(n_theta, dt, t0 + tdelta[n])
-        phase_delayed = phase_delayed + n_theta_delayed[:len(t)]
-        
-        # Generate reference signal with noise
-        r = Ar_prime * np.cos(phase_delayed) + np.random.randn(len(t)) * sigma_r  # Changed to cosine
+        r = A_r * np.cos(2*np.pi*f_ac*tt + phase_delayed) + np.random.randn(len(t)) * sigma_r  # Changed to cosine
         R[:, n] = r
     
     # Generate injected GW signal (Equation 18)
@@ -127,4 +102,4 @@ def simulate_data(f0, fq, h0, sigma_n, W, N, sigma_r, A_ac, A_r, gamma_a, D_fac=
     # x(t) = h(t) + c(t) + n(t)
     x = h + c + np.random.randn(len(t)) * sigma_n
     
-    return x, R, h, t, r0, c  
+    return x, R, h, t
