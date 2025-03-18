@@ -14,8 +14,8 @@ jobs:
       - name: Set up Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
-          activate-environment: ANC2
-          environment-file: conda_environment2.yml
+          activate-environment: ANC
+          environment-file: conda_environment.yml
           auto-activate-base: false
       - run: |
           conda info
@@ -23,4 +23,4 @@ jobs:
 
       - name: Test with pytest
         run: |
-          conda run -n ANC2 run -m pytest -v -s
+          conda run -n ANC pytest -v -s

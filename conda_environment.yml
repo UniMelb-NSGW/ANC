@@ -1,5 +1,6 @@
 name: ANC
 channels:
+  - anaconda
   - conda-forge
   - https://repo.anaconda.com/pkgs/main
   - https://repo.anaconda.com/pkgs/r
@@ -7,7 +8,7 @@ dependencies:
   - appnope=0.1.4
   - astropy=6.1.6
   - astropy-base=6.1.6
-  - astropy-iers-data=0.2025.3.10.0.29.26
+  - astropy-iers-data=0.2025.3.17.0.34.53
   - asttokens=3.0.0
   - brotli=1.1.0
   - brotli-bin=1.1.0
@@ -34,7 +35,7 @@ dependencies:
   - exceptiongroup=1.2.2
   - executing=2.1.0
   - fonttools=4.56.0
-  - freetype=2.12.1
+  - freetype=2.13.3
   - gwdatafind=1.2.0
   - gwosc=0.7.1
   - gwpy=3.0.12
@@ -47,7 +48,6 @@ dependencies:
   - igwn-auth-utils=1.2.0
   - igwn-segments=2.0.0
   - importlib-metadata=8.6.1
-  - iniconfig=2.0.0
   - ipykernel=6.29.5
   - ipython=8.34.0
   - jedi=0.19.2
@@ -69,14 +69,11 @@ dependencies:
   - libedit=3.1.20250104
   - libev=4.33
   - libffi=3.4.2
-  - libgfortran=5.0.0
-  - libgfortran5=13.2.0
   - libjpeg-turbo=3.0.0
   - liblapack=3.9.0
   - liblzma=5.6.4
   - libnghttp2=1.64.0
   - libntlm=1.8
-  - libopenblas=0.3.29
   - libpng=1.6.47
   - libsodium=1.0.20
   - libsqlite=3.49.1
@@ -95,7 +92,7 @@ dependencies:
   - ncurses=6.5
   - nds2-client=0.16.8
   - nest-asyncio=1.6.0
-  - numpy=2.2.3
+  - numpy=2.2.4
   - openjpeg=2.5.3
   - openssl=3.4.1
   - packaging=24.2
@@ -105,7 +102,6 @@ dependencies:
   - pillow=11.1.0
   - pip=25.0.1
   - platformdirs=4.3.6
-  - pluggy=1.5.0
   - prompt-toolkit=3.0.50
   - psutil=7.0.0
   - pthread-stubs=0.4
@@ -117,7 +113,6 @@ dependencies:
   - pyjwt=2.10.1
   - pyparsing=3.2.1
   - pysocks=1.7.1
-  - pytest=8.3.5
   - python=3.10.16
   - python-dateutil=2.9.0.post0
   - python-nds2-client=0.16.12
@@ -137,7 +132,6 @@ dependencies:
   - six=1.17.0
   - stack_data=0.6.3
   - tk=8.6.13
-  - tomli=2.2.1
   - tornado=6.4.2
   - tqdm=4.67.1
   - traitlets=5.14.3
@@ -155,4 +149,4 @@ dependencies:
   - zipp=3.21.0
   - zstandard=0.23.0
   - zstd=1.5.7
-prefix: /opt/miniconda3/envs/ANC
+prefix: /opt/miniconda3/envs/ANC2
