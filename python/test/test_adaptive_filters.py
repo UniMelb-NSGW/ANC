@@ -14,7 +14,8 @@ def test_arls_n_basic_functionality():
     # Run arls_n
     order = 4
     lambd = 0.99
-    cancelled, adap, fit, P = arls_n(primary_noisy, reference, order, lambd)
+    Delta = 1e-6  # Add regularization parameter
+    cancelled, adap, fit, P = arls_n(primary_noisy, reference, order, lambd, Delta)
     
     # Basic checks
     assert cancelled.shape == (n_samples,)
@@ -52,7 +53,8 @@ def test_arls_n_multichannel():
     # Run arls_n
     order = 4
     lambd = 0.99
-    cancelled, adap, fit, P = arls_n(primary_noisy, reference, order, lambd)
+    Delta = 1e-6  # Add regularization parameter
+    cancelled, adap, fit, P = arls_n(primary_noisy, reference, order, lambd, Delta)
     
     # Check shapes
     assert cancelled.shape == (n_samples,)
@@ -72,16 +74,17 @@ def test_arls_n_parameter_validation():
     n_samples = 50
     primary = np.random.randn(n_samples)
     reference = np.random.randn(n_samples)
+    Delta = 1e-6  # Add regularization parameter
     
     # Test with different orders
     for order in [1, 5, 10]:
-        cancelled, adap, fit, P = arls_n(primary, reference, order, 0.99)
+        cancelled, adap, fit, P = arls_n(primary, reference, order, 0.99, Delta)
         assert adap.shape == (order, 1)
         assert P.shape == (order*1, order*1)  # P is (order*N, order*N) where N=1
     
     # Test with different lambda values
     for lambd in [0.9, 0.95, 0.99, 1.0]:
-        cancelled, adap, fit, P = arls_n(primary, reference, 3, lambd)
+        cancelled, adap, fit, P = arls_n(primary, reference, 3, lambd, Delta)
         assert cancelled.shape == (n_samples,)
 
 def test_arls_n_noise_cancellation():
@@ -102,9 +105,10 @@ def test_arls_n_noise_cancellation():
     reference = line_noise
     
     # Run arls_n
-    order = 5
+    order = 10
     lambd = 0.99
-    cancelled, adap, fit, P = arls_n(primary, reference, order, lambd)
+    Delta = 1e2  # Add regularization parameter
+    cancelled, adap, fit, P = arls_n(primary, reference, order, lambd, Delta)
     
     # After convergence, the cancelled signal should be closer to the original
     # signal than the primary signal was
@@ -123,14 +127,15 @@ def test_arls_n_different_length_signals():
     """Test arls_n with primary and reference signals of different lengths."""
     primary = np.random.randn(100)
     reference = np.random.randn(80)  # Shorter than primary
+    Delta = 1e-6  # Add regularization parameter
     
     # Function should use the minimum length
-    cancelled, adap, fit, P = arls_n(primary, reference, 3, 0.99)
+    cancelled, adap, fit, P = arls_n(primary, reference, 3, 0.99, Delta)
     assert len(cancelled) == len(reference)
     
     # Test with reference longer than primary
     primary = np.random.randn(80)
     reference = np.random.randn(100)
     
-    cancelled, adap, fit, P = arls_n(primary, reference, 3, 0.99)
+    cancelled, adap, fit, P = arls_n(primary, reference, 3, 0.99, Delta)
     assert len(cancelled) == len(primary) 

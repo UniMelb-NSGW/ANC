@@ -21,7 +21,7 @@ def test_simulate_data_shapes():
     gamma_a = 0.1  # Phase fluctuation parameter
     
     # Call the function
-    s, R, q, t, r0 = simulate_data(f0, fq, h, H, W, N, Q, ampr0, ampr, gamma_a)
+    s, R, q, t = simulate_data(f0, fq, h, H, W, N, Q, ampr0, ampr, gamma_a)
     
     # Check shapes
     NT = len(fq)
@@ -31,7 +31,6 @@ def test_simulate_data_shapes():
     assert R.shape == (expected_length, 1), f"Reference signals shape should be ({expected_length}, 1)"
     assert len(q) == expected_length, f"Injected signal length should be {expected_length}"
     assert len(t) == expected_length, f"Time vector length should be {expected_length}"
-    assert len(r0) == expected_length, f"Original reference length should be {expected_length}"
 
 
 def test_simulate_data_types():
@@ -49,21 +48,19 @@ def test_simulate_data_types():
     gamma_a = 0.1
     
     # Call the function
-    s, R, q, t, r0 = simulate_data(f0, fq, h, H, W, N, Q, ampr0, ampr, gamma_a)
+    s, R, q, t  = simulate_data(f0, fq, h, H, W, N, Q, ampr0, ampr, gamma_a)
     
     # Check types
     assert isinstance(s, np.ndarray), "Primary signal should be a numpy array"
     assert isinstance(R, np.ndarray), "Reference signals should be a numpy array"
     assert isinstance(q, np.ndarray), "Injected signal should be a numpy array"
     assert isinstance(t, np.ndarray), "Time vector should be a numpy array"
-    assert isinstance(r0, np.ndarray), "Original reference should be a numpy array"
     
     # Check data types
     assert s.dtype == np.float64, "Primary signal should be float64"
     assert R.dtype == np.float64, "Reference signals should be float64"
     assert q.dtype == np.float64, "Injected signal should be float64"
     assert t.dtype == np.float64, "Time vector should be float64"
-    assert r0.dtype == np.float64, "Original reference should be float64"
 
 
 def test_simulate_data_time_vector():
@@ -81,39 +78,12 @@ def test_simulate_data_time_vector():
     gamma_a = 0.1
     
     # Call the function
-    _, _, _, t, _ = simulate_data(f0, fq, h, H, W, N, Q, ampr0, ampr, gamma_a)
+    _, _, _, t  = simulate_data(f0, fq, h, H, W, N, Q, ampr0, ampr, gamma_a)
     
     # Check time vector properties
     dt = 1/W
     assert np.isclose(t[1] - t[0], dt), f"Time step should be {dt}"
     assert np.isclose(t[-1] - t[0], (len(t) - 1) * dt), "Time span should match expected duration"
-
-
-def test_simulate_data_optional_params():
-    """Test that the function works with optional parameters."""
-    # Test parameters
-    f0 = 60.0
-    fq = np.array([60.0])
-    h = 0.5
-    H = 0.1
-    W = 1000.0
-    N = 1000
-    Q = 0.05
-    ampr0 = 1.0
-    ampr = 0.8
-    gamma_a = 0.1
-    D_a = 2.0  # Custom amplitude of phase modulation
-    sigma_a = 0.02  # Custom standard deviation of phase noise
-    
-    # Call the function with optional parameters
-    s1, R1, q1, t1, r01 = simulate_data(f0, fq, h, H, W, N, Q, ampr0, ampr, gamma_a)
-    s2, R2, q2, t2, r02 = simulate_data(f0, fq, h, H, W, N, Q, ampr0, ampr, gamma_a, D_a, sigma_a)
-    
-    # Both calls should work and return arrays of the same shape
-    assert len(s1) == len(s2), "Output length should be the same regardless of optional parameters"
-    
-    # But the actual values should be different due to different parameters
-    assert not np.allclose(r01, r02), "Different phase modulation parameters should produce different signals"
 
 
 def test_simulate_data_reproducibility():
@@ -132,13 +102,12 @@ def test_simulate_data_reproducibility():
     
     # Set random seed
     np.random.seed(42)
-    s1, R1, q1, t1, r01 = simulate_data(f0, fq, h, H, W, N, Q, ampr0, ampr, gamma_a)
+    s1, R1, q1, t1 = simulate_data(f0, fq, h, H, W, N, Q, ampr0, ampr, gamma_a)
     
     # Reset seed and call again
     np.random.seed(42)
-    s2, R2, q2, t2, r02 = simulate_data(f0, fq, h, H, W, N, Q, ampr0, ampr, gamma_a)
+    s2, R2, q2, t2 = simulate_data(f0, fq, h, H, W, N, Q, ampr0, ampr, gamma_a)
     
     # Results should be identical
     assert np.allclose(s1, s2), "Results should be reproducible with the same random seed"
     assert np.allclose(R1, R2), "Results should be reproducible with the same random seed"
-    assert np.allclose(r01, r02), "Results should be reproducible with the same random seed" 

@@ -54,10 +54,6 @@ def simulate_data(f_ac, fq, h0, sigma_n, W, N, sigma_r, A_c, A_r, gamma_a, Δfac
         Injected GW signal
     t : ndarray
         Time vector
-    r0 : ndarray
-        Original reference signal
-    c : ndarray
-        Clutter/interference signal
     """
     NT = len(fq)
     dt = 1/W

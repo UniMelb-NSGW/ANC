@@ -3,9 +3,11 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2412.01058-b31b1b.svg)](https://arxiv.org/abs/2412.01058)
 [![PRD](https://img.shields.io/badge/PRD-110.122004-blue.svg)](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.110.122004)
 
-This repository contains the implementation of an adaptive noise cancellation (ANC) algorithm for mitigating LIGO instrumental lines, in particular the 60 Hz mains power line. The algorithm uses reference signals to estimate and remove power line interference while preserving the underlying gravitational wave signal. The method is described in detail in  ["Adaptive cancellation of mains power interference in continuous gravitational wave searches with a hidden Markov model" (Kimpson et al., 2024)](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.110.122004). This repository is an effort to open-source the methods described in the paper.
+This repository contains the implementation of an adaptive noise cancellation (ANC) algorithm for mitigating LIGO instrumental lines, in particular the 60 Hz mains power line. The algorithm uses reference signals to estimate and remove power line interference while preserving the underlying gravitational wave signal. The method is described in detail in  ["Adaptive cancellation of mains power interference in continuous gravitational wave searches with a hidden Markov model"](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.110.122004). This repository is an effort to open-source the methods described in the paper.
 
-This repository contains `MATLAB` code used in the original paper, along with a more accessible Python implementation designed for the astrophysics community.
+This repository contains `MATLAB` code used in the original paper, along with a more accessible Python implementation designed for the astrophysics community. **Please note that the Python implementation is a work in progress**. Please check the [issues](https://github.com/UniMelb-NSGW/ANC/issues) or [PRs](https://github.com/UniMelb-NSGW/ANC/pulls) for current status. 
+
+![ANC Algorithm Diagram](./images/anc_diagram.png)
 
 **The Python implementation is a work in progress**
 
