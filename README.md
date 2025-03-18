@@ -7,7 +7,7 @@ This repository contains the implementation of an adaptive noise cancellation (A
 
 This repository contains `MATLAB` code used in the original paper, along with a more accessible Python implementation designed for the astrophysics community. **Please note that the Python implementation is a work in progress**. Please check the [issues](https://github.com/UniMelb-NSGW/ANC/issues) or [PRs](https://github.com/UniMelb-NSGW/ANC/pulls) for current status. 
 
-![ANC Algorithm Diagram](./images/anc_diagram.png)
+![ANC Algorithm Diagram](./docs/images/anc_diagram.png)
 
 **The Python implementation is a work in progress**
 
