@@ -35,11 +35,16 @@ def arls_n(primary, reference, order, lambd,Delta):
     P : ndarray
         Covariance matrix P = <ww^T> - used in ARLS algorithm
     """
+
+    print("Applying ARLS filter")
+    print("Filter order: ", order)
+
     # Ensure reference is always a 2D array
     if len(reference.shape) == 1:
         reference = reference.reshape(-1, 1)
     
     N = reference.shape[1]
+    print("Number of reference channels: ", N)
     n = min(len(primary), len(reference))
     
     # Initialize tap-input vector (Eq. 11) as buffer for reference samples
@@ -53,7 +58,7 @@ def arls_n(primary, reference, order, lambd,Delta):
     cancelled = np.zeros(n)
     
     # Initialize covariance matrix P = δ^-1*I (Step 1 in Sec. III.B)
-    # δ is the regularization parameter, set to 100 as mentioned in Sec. III.B
+    # δ is the regularization parameter. 
     I = np.eye(order * N)
     P = I * Delta
     
@@ -64,7 +69,7 @@ def arls_n(primary, reference, order, lambd,Delta):
             
         # Estimate clutter ĉ_k (Eq. 10 and Step 2a in Sec. III.B)
         fit[k] = np.trace(np.dot(delayed.T, adap))
-        
+
         # Calculate residual e_k (Eq. 9 and Step 2b in Sec. III.B)
         cancelled[k] = primary[k] - fit[k]
         

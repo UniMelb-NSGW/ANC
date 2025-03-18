@@ -1,57 +1,32 @@
 # ANC: Adaptive Noise Cancellation for LIGO Instrumental Lines
 
-[![arXiv](https://img.shields.io/badge/arXiv-2402.xxxxx-b31b1b.svg)](https://arxiv.org/abs/2402.xxxxx)
+[![arXiv](https://img.shields.io/badge/arXiv-2412.01058-b31b1b.svg)](https://arxiv.org/abs/2412.01058)
 [![PRD](https://img.shields.io/badge/PRD-110.122004-blue.svg)](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.110.122004)
 
-This repository contains the implementation of an Adaptive Recursive Least Squares (ARLS) algorithm for noise cancellation in LIGO instrumental lines, as described in the paper "Adaptive cancellation of mains power interference in continuous gravitational wave searches with a hidden Markov model" (Kimpson et al., 2024).
+This repository contains the implementation of an adaptive noise cancellation (ANC) algorithm for mitigating LIGO instrumental lines, in particular the 60 Hz mains power line. The algorithm uses reference signals to estimate and remove power line interference while preserving the underlying gravitational wave signal. The method is described in detail in  ["Adaptive cancellation of mains power interference in continuous gravitational wave searches with a hidden Markov model" (Kimpson et al., 2024)](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.110.122004). This repository is an effort to open-source the methods described in the paper.
 
-## Overview
+This repository contains `MATLAB` code used in the original paper, along with a more accessible Python implementation designed for the astrophysics community.
 
-The ANC package implements an adaptive filtering algorithm designed to cancel out instrumental line noise in gravitational wave data. The algorithm uses reference signals to estimate and remove power line interference while preserving the underlying gravitational wave signal.
+**The Python implementation is a work in progress**
 
-## Installation
+## Getting started
 
-You can install the package using either of the following methods:
+You can get started exploring the methods as follows
 
-### Method 1: Using conda environment file (Recommended)
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/ANC.git
+git clone git@github.com:UniMelb-NSGW/ANC.git
 cd ANC
 ```
 
 2. Create and activate the conda environment using the provided environment file:
 ```bash
 conda env create -f conda_environment.yml
-conda activate anc
+conda activate ANC
 ```
 
-3. Install the package:
-```bash
-pip install -e .
-```
-
-### Method 2: Manual conda environment setup
-
-If you prefer to create the environment manually:
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/ANC.git
-cd ANC
-```
-
-2. Create and activate a conda environment:
-```bash
-conda create -n anc python=3.8
-conda activate anc
-```
-
-3. Install the package:
-```bash
-pip install -e .
-```
+3. Explore `notebooks/demo.ipynb`. This notebook is the best place to start to get a sense of how to use the ANC code. The method is tested using open source data from [GWOSC](https://gwosc.org), allowing users to run the code without requiring full LIGO access
 
 ## Project Structure
 
@@ -75,23 +50,6 @@ ANC/
 
 ```python
 from ANC.adaptive_filters import arls_n
-from ANC.generate_synthetic_data import simulate_data
-import numpy as np
-
-# Generate synthetic data
-x, R, h, t = simulate_data(
-    f_ac=60.0,      # Power line frequency
-    fq=np.array([60.0]),  # GW signal frequency
-    h0=1e-24,       # GW signal amplitude
-    sigma_n=1e-23,  # Noise level
-    W=4096,         # Sampling frequency
-    N=4096,         # Samples per block
-    sigma_r=1e-6,   # Reference noise
-    A_c=1e-22,      # Clutter amplitude
-    A_r=1.0,        # Reference amplitude
-    gamma_a=0.1     # Phase fluctuation parameter
-)
-
 # Apply adaptive filter
 cancelled, adap, fit, P = arls_n(
     primary=x,
@@ -132,13 +90,12 @@ If you use this software in your research, please cite:
 ```bibtex
 @article{kimpson2024adaptive,
   title={Adaptive cancellation of mains power interference in continuous gravitational wave searches with a hidden Markov model},
-  author={Kimpson, Thomas and others},
+  author = {{Kimpson}, T. and {Suvorova}, S. and {Middleton}, H. and {Liu}, C. and {Melatos}, A. and {Evans}, R. and {Moran}, W.},
   journal={Physical Review D},
   volume={110},
   number={12},
   pages={122004},
-  year={2024},
-  publisher={APS}
+  year={2024}
 }
 ```
 
