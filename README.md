@@ -6,7 +6,7 @@
 
 This repository contains the implementation of an adaptive noise cancellation (ANC) algorithm for mitigating LIGO instrumental lines, in particular the 60 Hz mains power line. The algorithm uses reference signals to estimate and remove power line interference while preserving the underlying gravitational wave signal. The method is described in detail in  ["Adaptive cancellation of mains power interference in continuous gravitational wave searches with a hidden Markov model"](https://journals.aps.org/prd/abstract/10.1103/PhysRevD.110.122004). This repository is an effort to open-source the methods described in the paper.
 
-This repository contains `MATLAB` code used in the original paper, along with a more accessible Python implementation designed for the astrophysics community. **Please note that the Python implementation is a work in progress**. Please check the [issues](https://github.com/UniMelb-NSGW/ANC/issues) or [PRs](https://github.com/UniMelb-NSGW/ANC/pulls) for current status. 
+This repository contains MATLAB code used in the original paper, along with a more accessible Python implementation designed for the astrophysics community. **Please note that the Python implementation is a work in progress**; check the [issues](https://github.com/UniMelb-NSGW/ANC/issues) or [PRs](https://github.com/UniMelb-NSGW/ANC/pulls) for current status. 
 
 ## Getting started
 
@@ -19,7 +19,7 @@ git clone git@github.com:UniMelb-NSGW/ANC.git
 cd ANC
 ```
 
-2. Create and activate the conda environment using the provided environment file:
+2. Create and activate the conda environment using the provided environment `.yml` file:
 ```bash
 conda env create -f conda_environment.yml
 conda activate ANC
@@ -36,10 +36,9 @@ ANC/
 │       ├── adaptive_filters.py    # Core ARLS implementation
 │       ├── generate_synthetic_data.py  # Data generation utilities
 │       ├── hmm_viterbi.py        # Hidden Markov Model implementation
-│       ├── evaluation.py         # Performance evaluation metrics
 │       └── utils.py              # Helper functions
 ├── notebooks/
-│   └── examples/                 # Example notebooks
+│   └── demo.ipynb                # Example notebooks
 └── tests/                        # Unit tests
 ```
 
