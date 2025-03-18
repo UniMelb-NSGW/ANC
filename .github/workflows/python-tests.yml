@@ -1,0 +1,26 @@
+name: Testing
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: ANC
+          environment-file: conda_environment.yml
+          auto-activate-base: false
+      - run: |
+          conda info
+          conda list
+
+      - name: Test with pytest
+        run: |
+          conda run -n ANC pytest -v -s
