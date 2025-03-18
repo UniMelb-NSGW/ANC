@@ -9,21 +9,51 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10']  # Add more versions if needed, e.g. ['3.9', '3.10', '3.11']
+        
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    
     - name: Set up Conda
-      uses: conda-incubator/setup-miniconda@v3
+      uses: conda-incubator/setup-miniconda@v3.0.1
       with:
         auto-update-conda: true
-        python-version: '3.10'
+        python-version: ${{ matrix.python-version }}
         activate-environment: ANC
+        
+    - name: Cache conda env
+      uses: actions/cache@v3
+      with:
+        path: |
+          /usr/share/miniconda/envs/ANC
+          ~/.cache/pip
+        key: ${{ runner.os }}-conda-${{ hashFiles('conda_environment2.yml') }}-${{ matrix.python-version }}
+        restore-keys: |
+          ${{ runner.os }}-conda-
+          
     - name: Install dependencies
       shell: bash -el {0}
       run: |
-        conda env update --file conda_environment.yml --name ANC
+        conda env update --file conda_environment2.yml --name ANC
         pip install -e ./python
+        
     - name: Test with pytest
       shell: bash -el {0}
       run: |
         cd python
-        pytest test/
+        pytest test/ --junitxml=junit/test-results.xml --cov=. --cov-report=xml
+        
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()  # This ensures test results are uploaded even if tests fail
+      with:
+        name: test-results
+        path: python/junit/test-results.xml
+        
+    - name: Upload coverage
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: python/coverage.xml
