@@ -52,15 +52,23 @@ def arls_n(primary, reference, order, lambd,Delta):
     
     # Initialize tap weights w = 0 (Step 1 in Sec. III.B)
     adap = np.zeros((order, N))
-    
+
+    #Array to store the history of the norm of the weights
+    adap_history = np.zeros(n)
+
+
     # Arrays to store estimated noise and cancelled signal
     fit = np.zeros(n)
     cancelled = np.zeros(n)
     
-    # Initialize covariance matrix P = δ^-1*I (Step 1 in Sec. III.B)
+    # Initialize covariance matrix P
     # δ is the regularization parameter. 
+    # In Step 1 in Sec. III.B we write P= δ^-1*I 
+    # Here we use the more standard P= δ*I; this is typically how I would initialise with e.g. a Kalman fitler
+    # Watch out for this gotcha!
     I = np.eye(order * N)
     P = I * Delta
+
     
     # Main ARLS loop (Step 2 in Sec. III.B)
     for k in tqdm(range(n), desc="Processing samples"):
@@ -84,8 +92,11 @@ def arls_n(primary, reference, order, lambd,Delta):
         
         # Update tap weights w_k (Eq. 15 and Step 2d in Sec. III.B)
         adap = adap + cancelled[k] * np.reshape(K, (order, N))
+
+        #Store the norm of the adaptive weights
+        adap_history[k] = np.linalg.norm(adap)
         
         # Shift the delayed samples for next iteration
         delayed[1:order, :] = delayed[0:order-1, :]
     
-    return cancelled, adap, fit, P
+    return cancelled, adap, fit, P,adap_history
